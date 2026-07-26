@@ -1,13 +1,35 @@
-const redis = require('redis')
-require('dotenv').config();
+const redis = require("redis");
+require("dotenv").config();
 
-const redisClient = redis.createClient({
-    username: 'default',
-    password: process.env.redis_pass,
-    socket: {
-        host: process.env.host_link,
-        port: process.env.redis_port
-    }
-})
+let redisClient = null;
 
-module.exports=redisClient;
+const host = process.env.host_link;
+const password = process.env.redis_pass;
+const port = parseInt(process.env.redis_port, 10);
+
+if (
+    host &&
+    password &&
+    Number.isInteger(port)
+) {
+
+    redisClient = redis.createClient({
+        username: "default",
+        password,
+        socket: {
+            host,
+            port
+        }
+    });
+
+    redisClient.on("error", err => {
+        console.log("Redis Error:", err.message);
+    });
+
+} else {
+
+    console.log("Redis Disabled");
+
+}
+
+module.exports = redisClient;
